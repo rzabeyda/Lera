@@ -31,7 +31,8 @@ class Clean(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True); self.o = []; self.skip = 0
     def handle_starttag(self, t, a):
-        if t in ('style', 'script', 'form', 'button', 'svg', 'figure', 'img', 'iframe'): self.skip += 1; return
+        if t == 'img': return
+        if t in ('style', 'script', 'form', 'button', 'svg', 'figure', 'iframe'): self.skip += 1; return
         if self.skip: return
         if t == 'h1': t = 'h2'
         if t in KEEP:
