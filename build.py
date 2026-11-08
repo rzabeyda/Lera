@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Static site generator for Prokoolitus (RU at /, ET at /et/). Run: python build.py"""
 import json, re, html, os, shutil
+from cook import COOK, cook_page
 from html.parser import HTMLParser
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -74,7 +75,7 @@ PAIR_REV = {v: k for k, v in PAIR.items()}
 
 CSS = open(os.path.join(ROOT, 'style.css'), encoding='utf-8').read() if os.path.exists(os.path.join(ROOT, 'style.css')) else ''
 
-def page(lang, fname, title, inner, hero=None, desc=''):
+def page(lang, fname, title, inner, hero=None, desc='', hero_extra=''):
     t = T[lang]
     depth = '../' if lang == 'et' else ''
     other_file = (PAIR.get(fname) if lang == 'ru' else PAIR_REV.get(fname)) or 'index.html'
@@ -83,7 +84,7 @@ def page(lang, fname, title, inner, hero=None, desc=''):
     nav = ''.join(f'<a href="{"/" + t["prefix"] + f if f != "index.html" else "/" + t["prefix"]}"{" class=on" if f == fname else ""}>{n}</a>' for f, n in t['nav'])
     hero_html = ''
     if hero:
-        hero_html = f'<section class="hero" style="background-image:linear-gradient(rgba(20,40,60,.62),rgba(20,40,60,.62)),url(/{img(hero)})"><div class="wrap"><h1>{title}</h1></div></section>'
+        hero_html = f'<section class="hero" style="background-image:linear-gradient(rgba(20,40,60,.62),rgba(20,40,60,.62)),url(/{img(hero)})"><div class="wrap"><h1>{title}</h1>{hero_extra}</div></section>'
     else:
         inner = f'<div class="wrap narrow"><h1>{title}</h1></div>' + inner
     return f'''<!doctype html>
@@ -91,7 +92,7 @@ def page(lang, fname, title, inner, hero=None, desc=''):
 <title>{html.escape(re.sub('<[^>]+>', '', title))} — Prokoolitus</title>
 <meta name="description" content="{html.escape(desc or t['tagline'])}">
 <link rel="alternate" hreflang="{t['other']}" href="{other_url}">
-<link rel="stylesheet" href="/style.css"></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"><link rel="stylesheet" href="/style.css"></head><body>
 <header><div class="wrap bar"><a class="logo" href="/{t['prefix']}">Prokoolitus<small>{t['tagline']}</small></a>
 <input type="checkbox" id="m"><label for="m" class="burger">☰</label>
 <nav>{nav}<a class="lang" href="{other_url}">{t['other_label']}</a></nav></div></header>
@@ -99,6 +100,7 @@ def page(lang, fname, title, inner, hero=None, desc=''):
 <main>{inner}</main>
 <footer><div class="wrap cols"><div><b>Prokoolitus</b><br>{COMPANY}<br>{t['footer_reg']}: {REG}<br>{t['footer_mtr']}: {MTR}</div>
 <div><b>{t['footer_contact']}</b><br>{t['addr']}: {ADDRESS}<br>{t['phone']}: <a href="tel:{PHONE_HREF}">{PHONE}</a><br>{t['mail']}: <a href="mailto:{EMAIL}">{EMAIL}</a></div></div></footer>
+<a class="fab" href="tel:{PHONE_HREF}" aria-label="{PHONE}">📞 <span>{PHONE}</span></a>
 </body></html>'''
 
 def write(lang, fname, html_s):
@@ -109,12 +111,12 @@ def write(lang, fname, html_s):
 # ---------- course data ----------
 COURSES = {
  'ru': [
-  dict(slug='povar.html', name='Помощник повара', img='cook', text='Основы кулинарного дела и работы на профессиональной кухне под руководством опытных поваров.', start='16.11.2026', price=None, page=False),
+  dict(slug='povar.html', name='Помощник повара', img='cook', text='Основы кулинарного дела и работы на профессиональной кухне под руководством опытных поваров.', start='16.11.2026 – 28.01.2027', price='2400 €', hours='200 ак. часов', page=True),
   dict(slug='uborka.html', name='Специалист по уборке', img='clean', text='Современные методы клининга, профессиональная химия и стандарты чистоты для коммерческих и жилых объектов.', start='16.11.2026 – 20.01.2027', price='2300 €', hours='140 ак. часов', page=True),
   dict(slug='uhod.html', name='Работник по уходу', img='care', text='Знания и навыки для профессиональной заботы о пожилых людях и людях с особыми потребностями.', start='16.11.2026 – 09.03.2027', price='2499 €', hours='310 ак. часов', page=True),
  ],
  'et': [
-  dict(slug='kokaabi.html', name='Kokaabi', img='cook', text='Kokanduse alused ja töö professionaalses köögis kogenud kokkade juhendamisel.', start='16.11.2026', price=None, page=False),
+  dict(slug='kokaabi.html', name='Abikokk', img='cook', text='Kokanduse alused ja töö professionaalses köögis kogenud kokkade juhendamisel.', start='16.11.2026 – 28.01.2027', price='2400 €', hours='200 ak. tundi', page=True),
   dict(slug='puhastusteenindaja.html', name='Puhastusteenindaja', img='clean', text='Kaasaegsed koristusmeetodid, professionaalsed puhastusvahendid ja puhtusstandardid.', start='16.11.2026 – 20.01.2027', price='2300 €', hours='140 ak. tundi', page=True),
   dict(slug='hooldustootaja.html', name='Hooldustöötaja', img='care', text='Teadmised ja oskused eakate ja puudega inimeste professionaalseks hooldamiseks.', start='16.11.2026 – 09.03.2027', price='2490 €', hours='355 ak. tundi', page=True),
  ]}
@@ -172,12 +174,12 @@ def build():
         t = T[lang]; pre = '/' + t['prefix']
         k = lambda n: X[n] if n in X else None
         ix = X['index']
-        hp = f'<section class="intro wrap narrow"><p class="lead">{ix["hero_text"]}</p><p><a class="btn" href="{pre}{"kursy.html" if lang == "ru" else "kursused.html"}">{ix["coursesh"]}</a> <a class="btn ghost" href="{pre}kontakt.html">{t["cta"]}</a></p></section>' \
-             f'<section class="wrap"><h2>{ix["coursesh"]}</h2>{cards(lang)}</section>' \
-             f'<section class="wrap narrow"><h2>{ix["why"]}</h2><p>{ix["whyt"]}</p></section>' \
-             f'<section class="steps wrap"><h2>{ix["stepsh"]}</h2><div class="grid3">' + ''.join(f'<div><span>{i + 1}</span><h3>{a}</h3><p>{b}</p></div>' for i, (a, b) in enumerate(ix['steps'])) + '</div></section>' \
-             f'<section class="wrap narrow"><h2>{ix["faqh"]}</h2>{faq_html(ix["faq"])}</section>'
-        write(lang, 'index.html', page(lang, 'index.html', ix['title'], hp, hero='hero', desc=ix['hero_text']))
+        kl = "kursy.html" if lang == "ru" else "kursused.html"
+        facts = dict(ru=[('16.11', 'старт ближайших групп'), ('140–310', 'академических часов практики и теории'), ('Таллин + Zoom', 'очно и онлайн'), ('0', 'опыт не нужен — учим с нуля')],
+                     et=[('16.11', 'lähimate rühmade algus'), ('140–355', 'akadeemilist tundi teooriat ja praktikat'), ('Tallinn + Zoom', 'kohapeal ja veebis'), ('0', 'kogemust pole vaja — õpetame algusest')])[lang]
+        hero_x = f'<p class="herotext">{ix["hero_text"]}</p><p class="herobtn"><a class="btn" href="{pre}{kl}">{ix["coursesh"]}</a> <a class="btn light" href="{pre}kontakt.html">{t["cta"]}</a></p>'
+        hp = '<section class="facts"><div class="wrap grid4">' + ''.join(f'<div><b>{a}</b><span>{b}</span></div>' for a, b in facts) + '</div></section>'              f'<section class="wrap"><h2>{ix["coursesh"]}</h2>{cards(lang)}</section>'              f'<section class="why"><div class="wrap narrow"><h2>{ix["why"]}</h2><p class="lead">{ix["whyt"]}</p></div></section>'              f'<section class="steps wrap"><h2>{ix["stepsh"]}</h2><div class="grid3">' + ''.join(f'<div><span>{i + 1}</span><h3>{a}</h3><p>{b}</p></div>' for i, (a, b) in enumerate(ix['steps'])) + '</div></section>'              f'<section class="wrap narrow"><h2>{ix["faqh"]}</h2>{faq_html(ix["faq"])}</section>'              f'<section class="cta"><div class="wrap"><h2>{t["cta"]}</h2><p>{PHONE} · {EMAIL}</p><a class="btn" href="{pre}kontakt.html">{t["cta"]}</a></div></section>'
+        write(lang, 'index.html', page(lang, 'index.html', ix['title'], hp, hero='hero', desc=ix['hero_text'], hero_extra=hero_x))
 
         kn = 'kursy' if lang == 'ru' else 'kursused'
         title, lead = X[kn]
@@ -201,6 +203,8 @@ def build():
     write('et', 'puhastusteenindaja.html', page('et', 'puhastusteenindaja.html', 'Puhastusteenindaja', f'<div class="wrap narrow article">{body(160)}<p><a class="btn" href="/et/kontakt.html">Registreeru</a></p></div>', hero='clean'))
     write('et', 'hooldustootaja.html', page('et', 'hooldustootaja.html', 'Hooldustöötaja', f'<div class="wrap narrow article">{body(173)}<p><a class="btn" href="/et/kontakt.html">Registreeru</a></p></div>', hero='care'))
     write('et', 'koolitustingimused.html', page('et', 'koolitustingimused.html', 'Koolitustingimused', f'<div class="wrap narrow article">{body(182)}</div>'))
+    write('ru', 'povar.html', page('ru', 'povar.html', COOK['ru']['title'], cook_page('ru'), hero='cook'))
+    write('et', 'kokaabi.html', page('et', 'kokaabi.html', COOK['et']['title'], cook_page('et'), hero='cook'))
     open(os.path.join(OUT, 'style.css'), 'w', encoding='utf-8').write(CSS)
     print('built', sum(len(f) for _, _, f in os.walk(OUT)), 'files')
 
