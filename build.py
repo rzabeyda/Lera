@@ -10,7 +10,7 @@ SRC = json.load(open(os.path.join(ROOT, 'source', 'pages.json'), encoding='utf-8
 BY_ID = {p['id']: p for p in SRC}
 
 PHONE, PHONE_HREF = '+372 5554 9216', '+37255549216'
-EMAIL = 'info@prokoolitus.net'
+EMAIL = 'valeriaja@icloud.com'
 ADDRESS = 'Iva 12, Tallinn'
 COMPANY = 'SVETLO OÜ'
 REG = '16844319'
