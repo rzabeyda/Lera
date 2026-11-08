@@ -118,7 +118,7 @@ COURSES = {
  'et': [
   dict(slug='kokaabi.html', name='Abikokk', img='cook', text='Kokanduse alused ja töö professionaalses köögis kogenud kokkade juhendamisel.', start='16.11.2026 – 28.01.2027', price='2400 €', hours='200 ak. tundi', page=True),
   dict(slug='puhastusteenindaja.html', name='Puhastusteenindaja', img='clean', text='Kaasaegsed koristusmeetodid, professionaalsed puhastusvahendid ja puhtusstandardid.', start='16.11.2026 – 20.01.2027', price='2300 €', hours='140 ak. tundi', page=True),
-  dict(slug='hooldustootaja.html', name='Hooldustöötaja', img='care', text='Teadmised ja oskused eakate ja puudega inimeste professionaalseks hooldamiseks.', start='16.11.2026 – 09.03.2027', price='2490 €', hours='355 ak. tundi', page=True),
+  dict(slug='hooldustootaja.html', name='Hooldustöötaja', img='care', text='Teadmised ja oskused eakate ja puudega inimeste professionaalseks hooldamiseks.', start='16.11.2026 – 09.03.2027', price='2499 €', hours='355 ak. tundi', page=True),
  ]}
 
 def cards(lang):
@@ -201,7 +201,7 @@ def build():
     write('ru', 'uhod.html', page('ru', 'uhod.html', 'Работник по уходу', f'<div class="wrap narrow article">{body(122)}<p><a class="btn" href="/kontakt.html">Записаться</a></p></div>', hero='care'))
     write('ru', 'usloviya.html', page('ru', 'usloviya.html', 'Условия обучения', f'<div class="wrap narrow article">{body(21)}</div>'))
     write('et', 'puhastusteenindaja.html', page('et', 'puhastusteenindaja.html', 'Puhastusteenindaja', f'<div class="wrap narrow article">{body(160)}<p><a class="btn" href="/et/kontakt.html">Registreeru</a></p></div>', hero='clean'))
-    write('et', 'hooldustootaja.html', page('et', 'hooldustootaja.html', 'Hooldustöötaja', f'<div class="wrap narrow article">{body(173)}<p><a class="btn" href="/et/kontakt.html">Registreeru</a></p></div>', hero='care'))
+    write('et', 'hooldustootaja.html', page('et', 'hooldustootaja.html', 'Hooldustöötaja', f'<div class="wrap narrow article">{body(173).replace('2490€', '2499 €')}<p><a class="btn" href="/et/kontakt.html">Registreeru</a></p></div>', hero='care'))
     write('et', 'koolitustingimused.html', page('et', 'koolitustingimused.html', 'Koolitustingimused', f'<div class="wrap narrow article">{body(182)}</div>'))
     write('ru', 'povar.html', page('ru', 'povar.html', COOK['ru']['title'], cook_page('ru'), hero='cook'))
     write('et', 'kokaabi.html', page('et', 'kokaabi.html', COOK['et']['title'], cook_page('et'), hero='cook'))
