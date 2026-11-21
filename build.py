@@ -93,7 +93,7 @@ def page(lang, fname, title, inner, hero=None, desc='', hero_extra=''):
 <title>{html.escape(re.sub('<[^>]+>', '', title))} — Prokoolitus</title>
 <meta name="description" content="{html.escape(desc or t['tagline'])}">
 <link rel="alternate" hreflang="{t['other']}" href="{other_url}">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"><link rel="stylesheet" href="/style.css"></head><body>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon.ico" sizes="any"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><meta name="theme-color" content="#12466a"><link rel="stylesheet" href="/style.css"></head><body>
 <header><div class="wrap bar"><a class="logo" href="/{t['prefix']}">Prokoolitus<small>{t['tagline']}</small></a>
 <input type="checkbox" id="m"><label for="m" class="burger">☰</label>
 <nav>{nav}<a class="lang" href="{other_url}">{t['other_label']}</a></nav></div></header>
